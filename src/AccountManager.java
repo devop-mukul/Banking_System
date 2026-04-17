@@ -11,6 +11,38 @@ public class AccountManager {
         this.scanner = scanner;
     }
 
+    // helper to insert a transaction record
+    private void logTransaction(long accountNumber, String type, double amount) {
+        String sql = "INSERT INTO transactions(account_number, type, amount) VALUES(?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, accountNumber);
+            ps.setString(2, type);
+            ps.setDouble(3, amount);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // show passbook / transaction history for an account
+    public void showPassbook(long accountNumber) {
+        String sql = "SELECT date, type, amount FROM transactions WHERE account_number = ? ORDER BY date DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, accountNumber);
+            ResultSet rs = ps.executeQuery();
+            System.out.println("\n----- PASSBOOK / TRANSACTION HISTORY -----");
+            while (rs.next()) {
+                System.out.println(
+                    rs.getTimestamp("date") + " | " +
+                    rs.getString("type") + " | " +
+                    rs.getDouble("amount")
+                );
+            }
+            System.out.println("------------------------------------------\n");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void credit_money(long account_number)throws SQLException {
         scanner.nextLine();
@@ -36,6 +68,8 @@ public class AccountManager {
                     int rowsAffected = preparedStatement1.executeUpdate();
                     if (rowsAffected > 0) {
                         System.out.println("Rs."+amount+" credited Successfully");
+                        // log transaction
+                        logTransaction(account_number, "Deposit", amount);
                         connection.commit();
                         connection.setAutoCommit(true);
                         return;
@@ -78,7 +112,9 @@ public class AccountManager {
                         preparedStatement1.setLong(2, account_number);
                         int rowsAffected = preparedStatement1.executeUpdate();
                         if (rowsAffected > 0) {
-                            System.out.println("Rs."+amount+" debited Successfully");
+                            System.out.println("Rs. "+amount+" debited Successfully.");
+                            // log transaction
+                            logTransaction(account_number, "Withdraw", amount);
                             connection.commit();
                             connection.setAutoCommit(true);
                             return;
@@ -138,7 +174,10 @@ public class AccountManager {
                         int rowsAffected2 = creditPreparedStatement.executeUpdate();
                         if (rowsAffected1 > 0 && rowsAffected2 > 0) {
                             System.out.println("Transaction Successful!");
-                            System.out.println("Rs."+amount+" Transferred Successfully");
+                            System.out.println("Rs. "+amount+" Transferred Successfully");
+                            // log both sides
+                            logTransaction(sender_account_number, "Transfer Out", amount);
+                            logTransaction(receiver_account_number, "Transfer In", amount);
                             connection.commit();
                             connection.setAutoCommit(true);
                             return;
@@ -173,7 +212,7 @@ public class AccountManager {
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()){
                 double balance = resultSet.getDouble("balance");
-                System.out.println("Balance: "+balance);
+                System.out.println("Balance: " + balance);
             }else{
                 System.out.println("Invalid Pin!");
             }

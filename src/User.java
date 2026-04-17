@@ -10,10 +10,14 @@ import java.util.Scanner;
 public class User {
     private Connection connection;
     private Scanner scanner;
+    private String name;
 
     public User(Connection connection, Scanner scanner){
         this.connection = connection;
         this.scanner = scanner;
+    }
+    public String getName() {
+        return name;
     }
 
     public void register(){
@@ -36,6 +40,7 @@ public class User {
             preparedStatement.setString(3, password);
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows > 0) {
+                this.name = full_name;
                 System.out.println("Registration Successfull!");
             } else {
                 System.out.println("Registration Failed!");
@@ -58,6 +63,7 @@ public class User {
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()){
+                this.name = resultSet.getString("full_name");
                 return email;
             }else{
                 return null;
