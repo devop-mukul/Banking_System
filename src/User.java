@@ -1,6 +1,5 @@
 // package BankingManagementSystem;
-
-// import javax.xml.transform.Result;
+// import javax.xml.transform.Resu  lt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

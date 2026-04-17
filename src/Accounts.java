@@ -60,8 +60,6 @@ public class Accounts {
         throw new RuntimeException("Account Number Doesn't Exist!");
     }
 
-
-
     private long generateAccountNumber() {
         try {
             Statement statement = connection.createStatement();

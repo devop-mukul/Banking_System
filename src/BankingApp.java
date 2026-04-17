@@ -60,7 +60,7 @@ public class BankingApp {
                             }
                             account_number = accounts.getAccount_number(email);
                             int choice2 = 0;
-                            while (choice2 != 5) {
+                            while (choice2 != 6) {
                                 System.out.println("User: " + fName);
                                 System.out.println("1. Debit Money");
                                 System.out.println("2. Credit Money");
